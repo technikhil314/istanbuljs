@@ -310,13 +310,13 @@ class VisitState {
         } else if (path.isStatement()) {
             path.insertBefore(T.expressionStatement(increment));
         } else if (
-            this.counterNeedsHoisting(path) &&
-            T.isVariableDeclarator(path.parentPath)
+          this.counterNeedsHoisting(path) &&
+          (T.isVariableDeclarator(path.parentPath) || path.parentPath.isClassProperty())
         ) {
             // make an attempt to hoist the statement counter, so that
             // function names are maintained.
             const parent = path.parentPath.parentPath;
-            if (parent && T.isExportNamedDeclaration(parent.parentPath)) {
+            if (parent && (T.isExportNamedDeclaration(parent.parentPath) || path.parentPath.isClassProperty())) {
                 parent.parentPath.insertBefore(
                     T.expressionStatement(increment)
                 );
@@ -340,6 +340,7 @@ class VisitState {
             );
         }
     }
+
 
     insertStatementCounter(path) {
         /* istanbul ignore if: paranoid check */
